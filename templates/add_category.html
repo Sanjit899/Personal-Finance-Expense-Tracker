@@ -1,0 +1,99 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Smooth fade-in animation */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Custom form styles */
+    .category-form {
+        max-width: 500px;
+        margin: auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .char-counter {
+        font-size: 0.85rem;
+        color: #666;
+        float: right;
+    }
+</style>
+
+<div class="fade-in">
+    <h2 class="text-center mb-4">Add Category</h2>
+
+    <!-- Alert placeholders -->
+    <div id="alertBox" class="alert d-none" role="alert"></div>
+
+    <form method="post" class="category-form shadow-sm" id="categoryForm">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-control", id="categoryName", maxlength="50", placeholder="Enter category name") }}
+            <small class="char-counter" id="charCounter">0 / 50</small>
+        </div>
+
+        <button class="btn btn-primary w-100">{{ form.submit.label }}</button>
+    </form>
+</div>
+
+<script>
+    const categoryName = document.getElementById('categoryName');
+    const charCounter = document.getElementById('charCounter');
+    const form = document.getElementById('categoryForm');
+    const alertBox = document.getElementById('alertBox');
+
+    // Live character count
+    categoryName.addEventListener('input', () => {
+        charCounter.textContent = `${categoryName.value.length} / 50`;
+        if (categoryName.value.length > 3) {
+            categoryName.classList.remove('is-invalid');
+            categoryName.classList.add('is-valid');
+        } else {
+            categoryName.classList.remove('is-valid');
+            categoryName.classList.add('is-invalid');
+        }
+    });
+
+    // Form validation before submit
+    form.addEventListener('submit', (e) => {
+        if (categoryName.value.trim().length < 3) {
+            e.preventDefault();
+            showAlert('Category name must be at least 3 characters long.', 'danger');
+            categoryName.focus();
+        } else {
+            showAlert('Category added successfully!', 'success');
+        }
+    });
+
+    // Show alert message
+    function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = `alert alert-${type}`;
+        alertBox.classList.remove('d-none');
+
+        setTimeout(() => {
+            alertBox.classList.add('d-none');
+        }, 3000);
+    }
+</script>
+
+{% endblock %}

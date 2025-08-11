@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<div class="row">
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Total Income</h5><p>₹{{ income }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Total Expense</h5><p>₹{{ expense }}</p>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3">
+      <h5>Balance</h5><p>₹{{ balance }}</p>
+    </div>
+  </div>
+</div>
+
+<h4 class="mt-4">Recent Transactions</h4>
+<table class="table">
+  <thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Category</th><th>Description</th></tr></thead>
+  <tbody>
+    {% for t in transactions %}
+      <tr>
+        <td>{{ t.date }}</td><td>{{ t.type }}</td><td>₹{{ t.amount }}</td>
+        <td>{{ t.category.name if t.category else '' }}</td>
+        <td>{{ t.description }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="5">No transactions yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h4 class="mt-4">Monthly Summary</h4>
+<canvas id="summaryChart" height="100"></canvas>
+{% endblock %}
+
+{% block scripts %}
+<!-- Load Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+fetch('{{ url_for("api_summary") }}')
+  .then(r => r.json())
+  .then(data => {
+    const labels = data.map(x => x.period);
+    const incomes = data.map(x => x.income);
+    const expenses = data.map(x => x.expense);
+
+    new Chart(document.getElementById('summaryChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: 'Income',
+            data: incomes,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          },
+          {
+            label: 'Expense',
+            data: expenses,
+            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          title: {
+            display: true,
+            text: 'Monthly Income vs Expense'
+          }
+        }
+      }
+    });
+  });
+</script>
+{% endblock %}

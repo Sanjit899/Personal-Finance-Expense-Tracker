@@ -1,0 +1,136 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+    /* Fade-in animation */
+    .fade-in {
+        animation: fadeIn 0.6s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form container */
+    .transaction-form {
+        max-width: 600px;
+        margin: auto;
+        background: #fff;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Character counter */
+    .char-counter {
+        font-size: 0.85rem;
+        color: #666;
+        float: right;
+    }
+</style>
+
+<div class="fade-in">
+    <h2 class="text-center mb-4">Add Transaction</h2>
+
+    <!-- Alert placeholder -->
+    <div id="alertBox" class="alert d-none" role="alert"></div>
+
+    <form method="post" class="transaction-form" id="transactionForm">
+        {{ form.hidden_tag() }}
+
+        <!-- Amount -->
+        <div class="mb-3">
+            {{ form.amount.label(class="form-label") }}
+            {{ form.amount(class="form-control", id="amountInput", placeholder="Enter amount") }}
+        </div>
+
+        <!-- Type -->
+        <div class="mb-3">
+            {{ form.type.label(class="form-label") }}
+            {{ form.type(class="form-select", id="typeSelect") }}
+        </div>
+
+        <!-- Category -->
+        <div class="mb-3">
+            {{ form.category.label(class="form-label") }}
+            <div class="input-group">
+                {{ form.category(class="form-select", id="categorySelect") }}
+                <a class="btn btn-outline-secondary" href="{{ url_for('add_category') }}" title="Add Category">+</a>
+            </div>
+        </div>
+
+        <!-- Date -->
+        <div class="mb-3">
+            {{ form.date.label(class="form-label") }}
+            {{ form.date(class="form-control", id="dateInput", type="date") }}
+        </div>
+
+        <!-- Description -->
+        <div class="mb-3">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control", id="descriptionInput", maxlength="200", placeholder="Enter transaction details") }}
+            <small class="char-counter" id="descCounter">0 / 200</small>
+        </div>
+
+        <!-- Submit -->
+        <button class="btn btn-primary w-100">{{ form.submit.label }}</button>
+    </form>
+</div>
+
+<script>
+    const amountInput = document.getElementById('amountInput');
+    const descriptionInput = document.getElementById('descriptionInput');
+    const descCounter = document.getElementById('descCounter');
+    const form = document.getElementById('transactionForm');
+    const alertBox = document.getElementById('alertBox');
+
+    // Live character counter for description
+    descriptionInput.addEventListener('input', () => {
+        descCounter.textContent = `${descriptionInput.value.length} / 200`;
+    });
+
+    // Live validation for amount (only positive numbers)
+    amountInput.addEventListener('input', () => {
+        if (amountInput.value > 0) {
+            amountInput.classList.remove('is-invalid');
+            amountInput.classList.add('is-valid');
+        } else {
+            amountInput.classList.remove('is-valid');
+            amountInput.classList.add('is-invalid');
+        }
+    });
+
+    // Form validation before submit
+    form.addEventListener('submit', (e) => {
+        let valid = true;
+        let message = '';
+
+        if (amountInput.value <= 0) {
+            valid = false;
+            message = 'Please enter a valid amount greater than 0.';
+        } else if (descriptionInput.value.trim().length < 5) {
+            valid = false;
+            message = 'Description must be at least 5 characters long.';
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            showAlert(message, 'danger');
+        } else {
+            showAlert('Transaction added successfully!', 'success');
+        }
+    });
+
+    // Show alert messages
+    function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = `alert alert-${type}`;
+        alertBox.classList.remove('d-none');
+
+        setTimeout(() => {
+            alertBox.classList.add('d-none');
+        }, 3000);
+    }
+</script>
+
+{% endblock %}

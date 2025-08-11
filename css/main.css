@@ -1,0 +1,25 @@
+body {
+    padding-bottom: 40px;
+    margin: 0; /* remove default margin */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* clean font */
+    background-color: #f4f6f8; /* soft background */
+    color: #333; /* text color */
+    line-height: 1.6; /* better text readability */
+    scroll-behavior: smooth; /* smooth scrolling effect */
+}
+
+/* Optional enhancements for links */
+a {
+    color: #007bff;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+a:hover {
+    color: #0056b3;
+}
+
+/* Optional text selection style */
+::selection {
+    background-color: #007bff;
+    color: white;
+}
